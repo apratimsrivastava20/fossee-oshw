@@ -93,8 +93,8 @@ During the setup of QEMU and ESP-IDF, several issues were encountered. These hav
 - ESP-IDF requires Python packages that cannot be installed globally under these constraints.
 
 **Fix:**  
-- Install the `python3-venv` package so that ESP-IDF can create an isolated virtual environment under `~/.espressif`.
-- Re-run the installer. All dependencies then install successfully within the virtual environment.
+- Install the `python3-venv` package so that ESP-IDF can create an isolated virtual environment under `~/.espressif`.  
+- Re-run the installer. The installation completes successfully once the local environment is available.
 
 ---
 
@@ -106,8 +106,6 @@ Activate the ESP-IDF environment before building:
 ```bash
 . ./export.sh
 ```
-
-This ensures all toolchain components are added to PATH.
 
 ---
 
@@ -128,22 +126,21 @@ make -j$(nproc)
 ---
 
 **Issue: Build failures with limited diagnostic information**  
-- The Ninja build system runs tasks in parallel, sometimes suppressing detailed errors.
+- The Ninja build system performs parallel compilation, occasionally causing error traces to scroll past too quickly.
 
 **Fix:**  
 Use verbose mode for ESP-IDF builds:
 ```bash
 idf.py build -v
 ```
-This reveals the full compiler and linker messages so root causes can be identified.
 
 ---
 
 ### 3.3 Runtime and Flash Image Issues
 
 **Issue: “invalid header: 0x29207d17” during QEMU boot**  
-- This occurred when the ELF file or incomplete binaries were passed directly to QEMU.  
-- The ESP32 expects a specific flash memory layout, including bootloader and partition table offsets.
+- This occurs when the ELF file or incomplete binaries are passed directly to QEMU.  
+- The ESP32 requires a specific memory layout that includes the bootloader and partition table.
 
 **Fix:**  
 Merge the binaries correctly:
@@ -154,15 +151,15 @@ esptool.py --chip esp32 merge_bin --fill-flash-size 4MB -o flash_image.bin @flas
 ---
 
 **Issue: Continuous boot loops**  
-- Caused by missing partition tables or incorrect flash size.
+- Caused by missing partition tables or an incomplete flash image.
 
 **Fix:**  
-Use the `--fill-flash-size 4MB` flag to ensure the final image matches the ESP32’s expected flash geometry.
+Use the `--fill-flash-size 4MB` flag to ensure that the final flash image matches the expected ESP32 layout.
 
 ---
 
 **Issue: ESP-IDF flashing tools cannot communicate**  
-- Tools such as `idf.py flash` expect a physical USB-connected ESP32 device, which does not exist in a virtual environment.
+- Tools such as `idf.py flash` expect a physical USB-connected ESP32 device.
 
 **Fix:**  
 Load the merged flash image directly into QEMU:
@@ -197,18 +194,25 @@ For Yaksh-based automated assessment workflows:
 3. QEMU executes the image headlessly and produces stable serial output.
 4. Yaksh analyzes this output to determine the correctness of the submission.
 
-This approach removes hardware dependencies, eliminates device-related inconsistencies, and supports large-scale automated assessment.
+This approach removes hardware dependencies, avoids device-related inconsistencies, and supports large-scale automated evaluation.
 
 ---
 
 ## 6. References
 
 1. OSHW Screening Task Document.  
-2. QEMU Official Documentation. *The QEMU Project*. https://www.qemu.org/docs/master/  
-3. Espressif QEMU Repository. *Espressif Systems*. https://github.com/espressif/qemu  
-4. ESP-IDF “Get Started” Guide. *Espressif Systems*. https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started  
-5. ESP-IDF GPIO API Reference. *Espressif Systems*. https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/gpio.html  
-6. Yaksh Online Evaluation Platform. *FOSSEE IIT Bombay*. https://github.com/FOSSEE/online_test  
-7. ESP-IDF Example Projects (“get-started”). *Espressif Systems*. https://github.com/espressif/esp-idf/tree/master/examples/get-started  
+2. QEMU Official Documentation. The QEMU Project. https://www.qemu.org/docs/master/  
+3. Espressif QEMU Repository. Espressif Systems. https://github.com/espressif/qemu  
+4. ESP-IDF “Get Started” Guide. Espressif Systems. https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started  
+5. ESP-IDF GPIO API Reference. Espressif Systems. https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/gpio.html  
+6. Yaksh Online Evaluation Platform. FOSSEE IIT Bombay. https://github.com/FOSSEE/online_test  
+7. ESP-IDF Example Projects (“get-started”). Espressif Systems. https://github.com/espressif/esp-idf/tree/master/examples/get-started  
+
+---
+
+## 7. Author
+
+**Apratim Srivastava**   
+
 
 ---
